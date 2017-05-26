@@ -71,11 +71,14 @@ def run_rcc(qrcfilepath):
 def run():
     parser = argparse.ArgumentParser(description='Generate rcc')
     parser.add_argument('theme', metavar='FILE', help='Path to .theme file')
+    parser.add_argument('--rcc', action='store_true', default=False,
+                        help='compile qrc with rcc')
 
     args = parser.parse_args()
 
     qrcfilepath = create_qrc(args.theme)
-    run_rcc(qrcfilepath)
+    if args.rcc:
+        run_rcc(qrcfilepath)
 
 if __name__ == '__main__':
     run()
