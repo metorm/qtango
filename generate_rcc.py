@@ -25,11 +25,27 @@ else:
 
 # Globals and constants variables.
 
+# This comversion make the cmake process extremely slow
+# bur without this the qrc would contains msys styled path
+# so it cannot be built by mingw
+# anyway, cmake would runs for only once
+def MsysPath_2_WinPath(msysPath, doubleSlash=False):
+    comm = "cygpath -w %s" % msysPath
+    #print("%s =>"%comm)
+    winpath = os.popen(comm).read().rstrip()
+    if doubleSlash:
+        winpath = winpath.replace("\\", "\\\\")
+    #print("  %s"%winpath)
+    return winpath
+
 def create_qrc(themefilepath, exts=['.png', '.svg']):
     """
     Generates .qrc file from all images in the directory of the theme path.
     """
     basepath = os.path.dirname(themefilepath)
+    isMSYS = (sys.platform == "msys")
+    if isMSYS:
+        print('Using MSYS / MSYS2, path would be fixed to windows style in order to compile.')
 
     # Parse index.theme
     parser = configparser.ConfigParser()
@@ -44,6 +60,8 @@ def create_qrc(themefilepath, exts=['.png', '.svg']):
 
     element = etree.SubElement(element_qresource, 'file', alias='index.theme')
     element.text = os.path.abspath(themefilepath)
+    if isMSYS:
+        element.text = MsysPath_2_WinPath(element.text, True)
 
     # Find all image files
     for directory in directories:
@@ -53,6 +71,8 @@ def create_qrc(themefilepath, exts=['.png', '.svg']):
                     continue
                 alias = os.path.join(directory, filename)
                 text = os.path.abspath(os.path.join(dirpath, filename))
+                if isMSYS:
+                    text = MsysPath_2_WinPath(text, True)
                 element = etree.SubElement(element_qresource, 'file', alias=alias)
                 element.text = text
 
