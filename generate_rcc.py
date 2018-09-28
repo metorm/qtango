@@ -8,6 +8,7 @@ __license__ = "GPL v3"
 
 # Standard library modules.
 import os
+import sys
 import argparse
 import xml.etree.ElementTree as etree
 import xml.dom.minidom as minidom
